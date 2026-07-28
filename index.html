@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Design Exam Simulator & Analytics</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- FontAwesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <!-- VIEW 1: DASHBOARD -->
+    <div id="dashboard-view" class="view active">
+      <header class="dash-header">
+        <h1><i class="fas fa-cube"></i> Design Exam Simulator</h1>
+        <div class="user-stats-pill">
+          Total Questions Attempted: <span id="dash-total-attempted">0</span>
+        </div>
+      </header>
+
+      <main class="dash-content">
+        <div class="dash-content-inner">
+            <!-- FLASHCARD HERO BANNER -->
+            <section class="flashcard-hero-section">
+            <div class="flashcard-hero-card">
+                <div class="hero-text">
+                <h2>Factcards</h2>
+                <p>
+                    Master art history, famous designers, typography, animation
+                    principles, and material facts with active recall cards.
+                </p>
+                </div>
+                <button class="btn-hero" onclick="initFlashcards()">
+                <i class="fas fa-play"></i> Launch Flashcards
+                </button>
+            </div>
+            </section>
+
+            <!-- Analytics Overview -->
+            <section class="analytics-section">
+            <h2><i class="fas fa-chart-pie"></i> Overall Performance</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                <h3>Average Accuracy</h3>
+                <p id="stat-accuracy" class="stat-number">0.0%</p>
+                </div>
+                <div class="stat-card">
+                <h3>Total Tests Taken</h3>
+                <p id="stat-tests-taken" class="stat-number">0</p>
+                </div>
+                <div class="stat-card">
+                <h3>Most Common Error Area</h3>
+                <p id="stat-weak-topic" class="stat-text">None!</p>
+                </div>
+            </div>
+            </section>
+
+            <!-- Topic-Wise Practice -->
+            <section class="topic-section">
+            <h2><i class="fas fa-layer-group"></i> Topic-Wise Question Bank</h2>
+            <div id="topic-grid" class="topic-grid">
+                <!-- Cards injected by JS -->
+            </div>
+            </section>
+
+            <!-- Full Past Papers -->
+            <section class="papers-section">
+            <h2><i class="fas fa-file-alt"></i> Full Past Papers</h2>
+            <div id="papers-grid" class="papers-grid">
+                <!-- Cards injected by JS -->
+            </div>
+            </section>
+        </div>
+      </main>
+    </div>
+
+    <!-- VIEW 2: EXAM INTERFACE (TCS iON Replica) -->
+    <div id="exam-view" class="view">
+      <header class="top-bar">
+        <div class="exam-title" id="exam-title-display">Loading...</div>
+        <div class="timer-section">
+          <i class="far fa-clock"></i> Time Left : <span id="timer">00:00</span>
+        </div>
+        <div class="user-profile">
+          <i class="fas fa-user-circle"></i> <span>Candidate</span>
+        </div>
+        <!-- Mobile Palette Toggle -->
+        <button class="mobile-palette-toggle" onclick="toggleMobilePalette()">
+          <i class="fas fa-bars"></i>
+        </button>
+      </header>
+
+      <div class="sub-bar">
+        <div class="sections" id="exam-sections">
+          <button class="active">Part A</button>
+        </div>
+      </div>
+
+      <div class="main-container">
+        <div class="question-area">
+          <div class="question-header">
+            <span id="q-type-label">Question Type: MCQ</span>
+            <span id="q-marks-label" class="marks-text">Marks: +3 | -1</span>
+          </div>
+
+          <div class="question-content" id="q-scroll-area">
+            <h3 id="q-number-display">Question No. 1</h3>
+            <div id="q-text" class="q-text"></div>
+            <div id="q-image-container">
+              <img
+                id="q-image"
+                src=""
+                alt="Question Graphic"
+                style="display: none"
+              />
+            </div>
+            <div id="q-input-area" class="input-area"></div>
+          </div>
+
+          <div class="action-bar">
+            <div class="left-actions">
+              <button class="btn-review" onclick="markForReview()">
+                Mark for Review & Next
+              </button>
+              <button class="btn-clear" onclick="clearResponse()">
+                Clear Response
+              </button>
+            </div>
+            <div class="right-actions">
+              <button class="btn-save" onclick="saveAndNext()">
+                Save & Next
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="side-palette" id="side-palette">
+          <div class="palette-legend">
+            <div class="legend-item">
+              <div class="badge ans">0</div>
+              Answered
+            </div>
+            <div class="legend-item">
+              <div class="badge not-ans">0</div>
+              Not Answered
+            </div>
+            <div class="legend-item">
+              <div class="badge not-vis">0</div>
+              Not Visited
+            </div>
+            <div class="legend-item">
+              <div class="badge rev">0</div>
+              Review
+            </div>
+          </div>
+          <div class="palette-header" id="palette-section-header">
+            Questions
+          </div>
+          <div class="palette-grid" id="palette-grid"></div>
+          <button class="btn-submit" onclick="finishExam()">Submit Exam</button>
+        </div>
+      </div>
+    </div>
+
+<!-- VIEW 3: FLASHCARDS MODULE -->
+<div id="flashcard-view" class="view">
+    <!-- Sleek App Header -->
+    <header class="fc-header">
+        <div class="fc-header-left">
+            <button class="btn-icon" onclick="returnToDashboard()" title="Exit to Dashboard"><i class="fas fa-arrow-left fa-fw"></i></button>
+            <h1>FactCard</h1>
+        </div>
+        <div class="fc-header-right">
+            <span id="fc-progress" class="fc-counter">1 / 0</span>
+            <button class="btn-icon" onclick="shuffleFlashcards()" title="Shuffle Deck"><i class="fas fa-random fa-fw"></i></button>
+            <button class="btn-icon" onclick="toggleFCDarkMode()" id="fc-theme-btn" title="Toggle Theme"><i class="fas fa-moon fa-fw"></i></button>
+        </div>
+    </header>
+
+    <div class="fc-wrapper">
+        <!-- 3D CARD SCENE -->
+        <div class="card-scene">
+            <div class="flash-card" id="main-flashcard" onclick="handleCardClick()">
+                <!-- Front Face -->
+                <div class="card-face card-front">
+                    <div class="fc-face-header">
+                        <span class="fc-category-badge" id="fc-topic-front">Category</span>
+                        <span class="fc-source-tag" id="fc-source-front">Source</span>
+                    </div>
+                    <div class="fc-body">
+                        <p id="fc-question-text" class="fc-prompt">Loading card...</p>
+                        <img id="fc-image" src="" alt="Context" style="display: none;">
+                        <div id="fc-options-front" class="fc-options-list"></div>
+                    </div>
+                    <div class="fc-hint">
+                        <i class="fas fa-hand-pointer"></i> 
+                        <span class="desktop-hint">Click card or press Space to flip</span>
+                        <span class="mobile-hint">Tap to flip • Swipe to navigate</span>
+                    </div>
+                </div>
+
+                <!-- Back Face -->
+                <div class="card-face card-back">
+                    <div class="fc-face-header">
+                        <span class="fc-category-badge back-badge">Solution</span>
+                    </div>
+                    <div class="fc-body">
+                        <div class="fc-answer-box">
+                            <span class="fc-ans-label">Correct Answer</span>
+                            <div id="fc-answer-text" class="fc-answer-value">--</div>
+                        </div>
+                    </div>
+                    <div class="fc-hint">
+                        <i class="fas fa-sync-alt"></i> 
+                        <span class="desktop-hint">Click or press Space to flip back</span>
+                        <span class="mobile-hint">Tap to flip • Swipe to navigate</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ICON NAVIGATION CONTROLS -->
+        <div class="fc-controls">
+            <button class="btn-fc-nav" onclick="prevFlashcard()" title="Previous Card"><i class="fas fa-chevron-left"></i></button>
+            <button class="btn-fc-flip" onclick="flipCard()" title="Flip Card"><i class="fas fa-sync-alt"></i></button>
+            <button class="btn-fc-nav" onclick="nextFlashcard()" title="Next Card"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>
+    <!-- VIEW 4: RESULTS & ANALYTICS -->
+    <div id="results-view" class="view">
+      <div class="results-container">
+        <h1>Test Submitted Successfully</h1>
+
+        <div class="score-card">
+          <h2>Your Score: <span id="res-score">0</span></h2>
+          <p>Accuracy: <span id="res-accuracy">0%</span></p>
+        </div>
+
+        <div class="results-breakdown">
+          <div class="breakdown-card correct">
+            <h3>Correct</h3>
+            <p id="res-correct">0</p>
+          </div>
+          <div class="breakdown-card incorrect">
+            <h3>Incorrect</h3>
+            <p id="res-incorrect">0</p>
+          </div>
+          <div class="breakdown-card unattempted">
+            <h3>Unattempted</h3>
+            <p id="res-unattempted">0</p>
+          </div>
+        </div>
+
+        <div class="topic-errors">
+          <h3>Errors by Topic/Section</h3>
+          <ul id="res-errors-list"></ul>
+        </div>
+
+        <button class="btn-primary" onclick="returnToDashboard()">
+          Return to Dashboard
+        </button>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
